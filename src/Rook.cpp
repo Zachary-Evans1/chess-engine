@@ -1,7 +1,7 @@
 #include "Rook.h"
 
-std::vector<Piece::Position> Rook::getLegalMoves(Piece* board[8][8])
-{
+std::vector<Piece::Position> Rook::getLegalMoves(Piece* board[8][8]) {
+    
     int r = pos.row;
     int c = pos.col;
     Piece::Position legal = {0,0};
