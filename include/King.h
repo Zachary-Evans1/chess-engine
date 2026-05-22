@@ -6,7 +6,7 @@ class King : public Piece {
 
     King(Color c, int r, int col) : Piece(c, KING, r, col) {}
     
-    std::vector<Position>getLegalMoves() override
+    std::vector<Position>getLegalMoves(Piece* board[8][8]) override
     {
         return {}; //For later
     }

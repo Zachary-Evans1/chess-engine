@@ -42,5 +42,5 @@ class Piece {
 
 
 
-    virtual std::vector<Position>getLegalMoves() = 0;
+    virtual std::vector<Position>getLegalMoves(Piece* board[8][8]) = 0;
 };
