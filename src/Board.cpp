@@ -7,6 +7,7 @@
 #include "King.h"
 #include <iostream>
 #include <cctype>
+#include <algorithm>
 
 
 Board::Board() { //Default constructor
@@ -50,8 +51,102 @@ void Board::printBoard() {
     }
 }
 
+Piece::Position Board::parseInput(std::string s) {
+    int col = s[0] - 'a';
+    int row = s[1] - '1';
+    Piece::Position pos{row, col};
+    return pos;
+}
+
+
+bool Board::isValidMove(Piece::Position from, Piece::Position to, Piece::Color turn) {
+    
+    if (board[from.row][from.col] == nullptr) {
+        return false;
+    }
+
+    if (board[from.row][from.col]->getColor() != turn) {
+        return false;
+    }
+
+    std::vector<Piece::Position> validMoves = board[from.row][from.col]->getLegalMoves(board);
+    
+    std::cout << std::endl;
+    
+    for(const Piece::Position& p : validMoves)
+    {
+        if(p == to) return true;
+    }
+
+    return false;
+}
+
 void Board::movePiece(Piece::Position from, Piece::Position to) {
 
+    if(board[to.row][to.col] != nullptr) {
+        delete board[to.row][to.col];
+    }
+
+    board[to.row][to.col] = board[from.row][from.col];
+
+    board[from.row][from.col] = nullptr;
+
+    board[to.row][to.col]->setPosition(to);
+}
+
+void Board::play() {
+
+    Piece::Color turn = Piece::WHITE; 
+
+    while(true)
+    {
+
+        printBoard();
+
+        std::cout << (turn == Piece::WHITE ? "White" : "Black") << "'s turn." << std::endl;
+
+        std::string f;
+
+        std::string t;
+        
+        std::cout << "Enter 'q' to quit." << std::endl;
+
+        std::cout << "Enter in chess notiation the postion of the piece you'd like to move: ";
+        std::cin >> f;
+
+        if(f == "quit" || f == "q") break;
+
+        std::cout << "\n Enter in chess notation the postion youd like to move your piece: ";
+        std::cin >> t;
+
+        if(t == "quit" || t == "q") break;
+
+        Piece::Position to = parseInput(t);
+        Piece::Position from = parseInput(f);
+
+
+
+        bool valid = isValidMove(from, to, turn);
+
+        if(valid)
+        {
+            movePiece(from, to);
+
+            if(turn == Piece::WHITE)
+            {
+                turn = Piece::BLACK;
+            }
+            else if(turn == Piece::BLACK)
+            {
+                turn = Piece::WHITE;
+            }
+        }
+
+        else
+        {
+            std::cout << "That is not a valid move!, Try again." << std::endl;
+        }
+    }
 }
 
 void Board::setupBoard() {

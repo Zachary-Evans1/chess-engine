@@ -5,6 +5,7 @@
 
 #pragma once
 #include "Piece.h"
+#include <string>
 
 class Board {
     private:
@@ -20,6 +21,12 @@ class Board {
     void printBoard();
 
     void movePiece(Piece::Position from, Piece::Position to);
+
+    Piece::Position parseInput(std::string s);
+
+    bool isValidMove(Piece::Position from, Piece::Position to, Piece::Color turn);
+
+    void play();
 
     void setupBoard();
 

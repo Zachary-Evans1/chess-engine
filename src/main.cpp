@@ -2,6 +2,6 @@
 
 int main() {
     Board board;
-    board.printBoard();
+    board.play();
     return 0;
 }

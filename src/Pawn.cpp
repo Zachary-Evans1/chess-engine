@@ -4,6 +4,7 @@ std::vector<Piece::Position> Pawn::getLegalMoves(Piece* board[8][8]) {
 
     int r = pos.row;
     int c = pos.col;
+
     Piece::Color team = color;
     std::vector<Piece::Position> legalMoves;
 
