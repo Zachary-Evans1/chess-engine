@@ -11,6 +11,8 @@ class Board {
 
     Piece* board[8][8]; //Sets up 8x8 chessboard
 
+    char getPieceChar(Piece* p);
+
     public:
 
     Board();

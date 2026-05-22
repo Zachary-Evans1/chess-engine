@@ -3,8 +3,6 @@
 // Class for Piece object in Chess-Engine project
 // Defines a Piece object for chess
 
-#pragma once
-
 #include "Piece.h"
 
 Piece::Piece(Color c, Type t, int r, int col) : color(c), type(t), pos{r, col} {}
