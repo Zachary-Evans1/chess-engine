@@ -38,7 +38,9 @@ char Board::getPieceChar(Piece* p)
 }
 
 void Board::printBoard() {
+    std::cout << "   a  b  c  d  e  f  g  h" << std::endl; //column lables
     for(int r = 7; r >=0; r--) {
+        std::cout << r+1 << " "; //row labels
         for(int c = 0; c < 8; c++) {
             if(board[r][c] == nullptr) {
                 std::cout << " . ";
