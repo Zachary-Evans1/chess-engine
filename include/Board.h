@@ -14,6 +14,12 @@ class Board {
 
     char getPieceChar(Piece* p);
 
+    Piece::Position findKing(Piece::Color color);
+
+    bool isInCheck(Piece::Color color);
+
+    bool gameOver = false;
+
     public:
 
     Board();
@@ -29,5 +35,4 @@ class Board {
     void play();
 
     void setupBoard();
-
 };

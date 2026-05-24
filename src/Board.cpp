@@ -86,7 +86,14 @@ bool Board::isValidMove(Piece::Position from, Piece::Position to, Piece::Color t
 void Board::movePiece(Piece::Position from, Piece::Position to) {
 
     if(board[to.row][to.col] != nullptr) {
-        delete board[to.row][to.col];
+
+        if(board[to.row][to.col]->getType() == Piece::KING) {
+            Piece::Color winner = board[from.row][from.col]->getColor();
+            std::cout << (winner == Piece::WHITE ? "White" : "Black") << " has won the game!" << std::endl;
+            gameOver = true;
+        }
+
+         delete board[to.row][to.col];
     }
 
     board[to.row][to.col] = board[from.row][from.col];
@@ -100,7 +107,7 @@ void Board::play() {
 
     Piece::Color turn = Piece::WHITE; 
 
-    while(true)
+    while(!gameOver)
     {
 
         printBoard();
@@ -134,6 +141,14 @@ void Board::play() {
         {
             movePiece(from, to);
 
+            if(gameOver) break;
+
+            Piece::Color opponent = (turn == Piece::WHITE) ? Piece::BLACK : Piece::WHITE;
+            if(isInCheck(opponent))
+            {
+                std::cout << (opponent == Piece::WHITE ? "White" : "Black") << " is in check!" << std::endl;
+            }
+
             if(turn == Piece::WHITE)
             {
                 turn = Piece::BLACK;
@@ -149,6 +164,35 @@ void Board::play() {
             std::cout << "That is not a valid move!, Try again." << std::endl;
         }
     }
+}
+
+Piece::Position Board::findKing(Piece::Color color) {
+    for(int r = 7; r >=0; r--) {
+        for(int c = 0; c < 8; c++) {
+            if(board[r][c] != nullptr && board[r][c]->getType() == Piece::KING && board[r][c]->getColor() == color)
+            {
+                return {r,c};
+            }
+        }    
+    }
+    return {-1, -1}; //King not found (shouldn't happen)
+}
+
+bool Board::isInCheck(Piece::Color color) {
+    Piece::Position kingPos = findKing(color);
+    for(int r = 0; r < 8; r++) {
+        for(int c = 0; c < 8; c++) {
+            if(board[r][c] != nullptr && board[r][c]->getColor() != color)
+            {
+                std::vector<Piece::Position> legalMoves = board[r][c]->getLegalMoves(board);
+                for(const Piece::Position& p : legalMoves)
+                {
+                    if(p == kingPos) return true;
+                }
+            }
+        }    
+    }
+    return false;
 }
 
 void Board::setupBoard() {
