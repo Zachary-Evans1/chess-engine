@@ -164,10 +164,20 @@ void Board::play() {
             if(gameOver) break;
 
             Piece::Color opponent = (turn == Piece::WHITE) ? Piece::BLACK : Piece::WHITE;
-            if(isInCheck(opponent))
+            
+            if(isInCheckmate(opponent))
+            {
+                printBoard();
+                std::cout << (turn == Piece::WHITE ? "White" : "Black") << " wins by checkmate!" << std::endl;
+                break;
+            }
+            
+            else if(isInCheck(opponent))
             {
                 std::cout << (opponent == Piece::WHITE ? "White" : "Black") << " is in check!" << std::endl;
             }
+
+
 
             if(turn == Piece::WHITE)
             {
@@ -213,6 +223,30 @@ bool Board::isInCheck(Piece::Color color) {
         }    
     }
     return false;
+}
+
+bool Board::isInCheckmate(Piece::Color color)
+{
+    if(!isInCheck(color))
+    {
+        return false;
+    }
+    for(int r = 0; r < 8; r++) {
+        for(int c = 0; c < 8; c++) {
+            if(board[r][c] != nullptr && board[r][c]->getColor() == color)
+            {
+                std::vector<Piece::Position> legalMoves = board[r][c]->getLegalMoves(board);
+                for(const Piece::Position& p : legalMoves)
+                {
+                    if(simulateMove({r,c}, p, color))
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
 }
 
 void Board::setupBoard() {

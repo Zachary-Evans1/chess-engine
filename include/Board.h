@@ -22,10 +22,7 @@ class Board {
     
     bool simulateMove(Piece::Position from, Piece::Position to, Piece::Color color);
 
-    public:
-
-    Board();
-
+    
     void printBoard();
 
     void movePiece(Piece::Position from, Piece::Position to);
@@ -34,7 +31,13 @@ class Board {
 
     bool isValidMove(Piece::Position from, Piece::Position to, Piece::Color turn);
 
-    void play();
-
     void setupBoard();
+
+    bool isInCheckmate(Piece::Color color);
+
+    public:
+
+    Board();
+
+    void play();
 };
