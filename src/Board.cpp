@@ -60,6 +60,26 @@ Piece::Position Board::parseInput(std::string s) {
     return pos;
 }
 
+bool Board::simulateMove(Piece::Position from, Piece::Position to, Piece::Color color) {
+    // 1. save the pieces at both squares
+    Piece* fromPiece = board[from.row][from.col];
+    Piece* toPiece = board[to.row][to.col];
+
+    // 2. temporarily make the move (don't delete anything yet)
+    board[to.row][to.col] = board[from.row][from.col];
+    board[from.row][from.col] = nullptr;
+
+    // 3. test if our king is in check
+    bool inCheck = isInCheck(color);
+
+    // 4. restore the board
+    board[from.row][from.col] = fromPiece;
+    board[to.row][to.col] = toPiece;
+
+    // 5. return true if the move is safe (not in check)
+    return !inCheck;
+}
+
 
 bool Board::isValidMove(Piece::Position from, Piece::Position to, Piece::Color turn) {
     
@@ -77,7 +97,7 @@ bool Board::isValidMove(Piece::Position from, Piece::Position to, Piece::Color t
     
     for(const Piece::Position& p : validMoves)
     {
-        if(p == to) return true;
+        if(p == to) return simulateMove(from, to, turn);
     }
 
     return false;

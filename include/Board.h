@@ -19,6 +19,8 @@ class Board {
     bool isInCheck(Piece::Color color);
 
     bool gameOver = false;
+    
+    bool simulateMove(Piece::Position from, Piece::Position to, Piece::Color color);
 
     public:
 
