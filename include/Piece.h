@@ -27,6 +27,7 @@ class Piece {
     Color color;
     Type type;
     Position pos;
+    bool hasMoved = false;
 
     Piece() : color(WHITE), type(PAWN), pos{0, 0} {} //Default Constructor
 
@@ -38,11 +39,13 @@ class Piece {
     void setColor(Color c) {color = c;}
     void setType(Type t) {type = t;}
     void setPosition(Position p) {pos = p;}
+    void setHasMoved(bool moved) {hasMoved = moved;}
 
     //Getters
     Color getColor() const {return color;}
     Type getType() const {return type;}
     Position getPosition() const {return pos;}
+    bool getHasMoved() const {return hasMoved;}
 
 
 

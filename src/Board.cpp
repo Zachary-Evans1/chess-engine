@@ -124,6 +124,28 @@ void Board::movePiece(Piece::Position from, Piece::Position to) {
     board[from.row][from.col] = nullptr;
 
     board[to.row][to.col]->setPosition(to);
+
+    if(board[to.row][to.col]->getType() == Piece::KING)
+    {
+        // kingside
+        if(to.col - from.col == 2)
+        {
+            // move rook from h file to f file
+            board[to.row][5] = board[to.row][7];
+            board[to.row][7] = nullptr;
+            board[to.row][5]->setPosition({to.row, 5});
+        }
+        // queenside
+        else if(from.col - to.col == 2)
+        {
+            // move rook from a file to d file
+            board[to.row][3] = board[to.row][0];
+            board[to.row][0] = nullptr;
+            board[to.row][3]->setPosition({to.row, 3});
+        }
+    }
+
+    board[to.row][to.col]->setHasMoved(true);
 }
 
 void Board::checkPromotion(Piece::Color color, Piece::Position pawn)
