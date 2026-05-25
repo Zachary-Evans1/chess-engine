@@ -35,6 +35,8 @@ class Board {
 
     bool isInCheckmate(Piece::Color color);
 
+    void checkPromotion(Piece::Color color, Piece::Position pawn);
+
     public:
 
     Board();

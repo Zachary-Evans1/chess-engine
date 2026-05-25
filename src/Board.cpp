@@ -54,8 +54,9 @@ void Board::printBoard() {
 }
 
 Piece::Position Board::parseInput(std::string s) {
-    int col = s[0] - 'a';
-    int row = s[1] - '1';
+    if(s.length() != 2) return {-1, -1};
+    int col = tolower(s[0]) - 'a';
+    int row = tolower(s[1]) - '1';
     Piece::Position pos{row, col};
     return pos;
 }
@@ -82,7 +83,9 @@ bool Board::simulateMove(Piece::Position from, Piece::Position to, Piece::Color 
 
 
 bool Board::isValidMove(Piece::Position from, Piece::Position to, Piece::Color turn) {
-    
+    if(from.row < 0 || from.row > 7 || from.col < 0 || from.col > 7) return false;
+    if(to.row < 0 || to.row > 7 || to.col < 0 || to.col > 7) return false;
+
     if (board[from.row][from.col] == nullptr) {
         return false;
     }
@@ -93,7 +96,7 @@ bool Board::isValidMove(Piece::Position from, Piece::Position to, Piece::Color t
 
     std::vector<Piece::Position> validMoves = board[from.row][from.col]->getLegalMoves(board);
     
-    std::cout << std::endl;
+    //std::cout << std::endl;
     
     for(const Piece::Position& p : validMoves)
     {
@@ -121,6 +124,45 @@ void Board::movePiece(Piece::Position from, Piece::Position to) {
     board[from.row][from.col] = nullptr;
 
     board[to.row][to.col]->setPosition(to);
+}
+
+void Board::checkPromotion(Piece::Color color, Piece::Position pawn)
+{
+    bool vaild = false;
+    char choice;
+    if(pawn.row == 7 || pawn.row == 0)
+    {
+        vaild = true;
+        delete board[pawn.row][pawn.col];
+        board[pawn.row][pawn.col] = nullptr;
+    }
+    while(vaild)
+    {
+        std::cout << "What piece would you like to promote your pawn to? Please enter the letter." << std::endl;
+        std::cin >> choice;
+        choice = tolower(choice);
+        switch(choice)
+        {
+            case 'b':
+            board[pawn.row][pawn.col] = new Bishop(color, pawn.row, pawn.col);
+            vaild = false;
+            break;
+            case 'n':
+            board[pawn.row][pawn.col] = new Knight(color, pawn.row, pawn.col);
+            vaild = false;
+            break;
+            case 'q':
+            board[pawn.row][pawn.col] = new Queen(color, pawn.row, pawn.col);
+            vaild = false;
+            break;
+            case 'r':
+            board[pawn.row][pawn.col] = new Rook(color, pawn.row, pawn.col);
+            vaild = false;
+            break;
+            default:
+            std::cout << "That is an invalid choice for promotion" << std::endl;
+        }
+    }
 }
 
 void Board::play() {
@@ -160,6 +202,11 @@ void Board::play() {
         if(valid)
         {
             movePiece(from, to);
+
+            if(board[to.row][to.col] != nullptr && board[to.row][to.col]->getType() == Piece::PAWN)
+            {
+                checkPromotion(turn, to);
+            }
 
             if(gameOver) break;
 
