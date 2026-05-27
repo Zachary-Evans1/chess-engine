@@ -6,5 +6,5 @@ class Knight : public Piece {
     
     Knight(Color c, int r, int col) : Piece(c, KNIGHT, r, col) {}
 
-    std::vector<Position>getLegalMoves(Piece* board[8][8]) override;
+    std::vector<Position>getLegalMoves(Piece* board[8][8], bool enPassant, Position enPassantTarget) override;
 };

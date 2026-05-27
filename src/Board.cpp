@@ -17,6 +17,8 @@ Board::Board() { //Default constructor
         }
     }
     setupBoard();
+    enPassantAvailable = false;
+    enPassantTarget = {-1, -1}; 
 }
 
 char Board::getPieceChar(Piece* p)
@@ -94,7 +96,7 @@ bool Board::isValidMove(Piece::Position from, Piece::Position to, Piece::Color t
         return false;
     }
 
-    std::vector<Piece::Position> validMoves = board[from.row][from.col]->getLegalMoves(board);
+    std::vector<Piece::Position> validMoves = board[from.row][from.col]->getLegalMoves(board, enPassantAvailable, enPassantTarget);
     
     //std::cout << std::endl;
     
@@ -107,6 +109,8 @@ bool Board::isValidMove(Piece::Position from, Piece::Position to, Piece::Color t
 }
 
 void Board::movePiece(Piece::Position from, Piece::Position to) {
+
+    bool wasEmpty = (board[to.row][to.col] == nullptr);
 
     if(board[to.row][to.col] != nullptr) {
 
@@ -142,6 +146,19 @@ void Board::movePiece(Piece::Position from, Piece::Position to) {
             board[to.row][3] = board[to.row][0];
             board[to.row][0] = nullptr;
             board[to.row][3]->setPosition({to.row, 3});
+        }
+    }
+
+    if(board[to.row][to.col]->getType() == Piece::PAWN &&
+    abs(to.col - from.col) == 1 &&
+    to.row != from.row && wasEmpty)
+    {
+        // pawn moved diagonally but destination was empty - en passant
+        // captured pawn is on same row as 'from', same col as 'to'
+        if(board[from.row][to.col] != nullptr)
+        {
+            delete board[from.row][to.col];
+            board[from.row][to.col] = nullptr;
         }
     }
 
@@ -230,6 +247,19 @@ void Board::play() {
                 checkPromotion(turn, to);
             }
 
+            if(board[to.row][to.col] != nullptr && 
+            board[to.row][to.col]->getType() == Piece::PAWN &&
+            abs(to.row - from.row) == 2)
+            {
+                enPassantAvailable = true;
+                enPassantTarget = {(from.row + to.row) / 2, to.col}; // the skipped square
+            }
+            else
+            {
+                enPassantAvailable = false;
+                enPassantTarget = {-1, -1};
+            }
+
             if(gameOver) break;
 
             Piece::Color opponent = (turn == Piece::WHITE) ? Piece::BLACK : Piece::WHITE;
@@ -283,7 +313,7 @@ bool Board::isInCheck(Piece::Color color) {
         for(int c = 0; c < 8; c++) {
             if(board[r][c] != nullptr && board[r][c]->getColor() != color)
             {
-                std::vector<Piece::Position> legalMoves = board[r][c]->getLegalMoves(board);
+                std::vector<Piece::Position> legalMoves = board[r][c]->getLegalMoves(board, enPassantAvailable, enPassantTarget);
                 for(const Piece::Position& p : legalMoves)
                 {
                     if(p == kingPos) return true;
@@ -304,7 +334,7 @@ bool Board::isInCheckmate(Piece::Color color)
         for(int c = 0; c < 8; c++) {
             if(board[r][c] != nullptr && board[r][c]->getColor() == color)
             {
-                std::vector<Piece::Position> legalMoves = board[r][c]->getLegalMoves(board);
+                std::vector<Piece::Position> legalMoves = board[r][c]->getLegalMoves(board, enPassantAvailable, enPassantTarget);
                 for(const Piece::Position& p : legalMoves)
                 {
                     if(simulateMove({r,c}, p, color))

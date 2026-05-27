@@ -1,6 +1,6 @@
 #include "King.h"
 
-std::vector<Piece::Position> King::getLegalMoves(Piece* board[8][8]) {
+std::vector<Piece::Position> King::getLegalMoves(Piece* board[8][8], bool enPassant, Position enPassantTarget) {
 
     int r = pos.row;
     int c = pos.col;

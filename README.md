@@ -61,7 +61,5 @@ This class holds the board which is an array of Piece pointers, it can print the
 
 
 # Roadmap
-Features to add are the following
-* Special moves(Castling, En passant)
-* Pawn promotion
+Features to add are the following:
 * AI opponent

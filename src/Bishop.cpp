@@ -1,6 +1,6 @@
 #include "Bishop.h"
 
-std::vector<Piece::Position> Bishop::getLegalMoves(Piece* board[8][8]) {
+std::vector<Piece::Position> Bishop::getLegalMoves(Piece* board[8][8], bool enPassant, Position enPassantTarget) {
 
     int r = pos.row;
     int c = pos.col;

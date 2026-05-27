@@ -37,6 +37,10 @@ class Board {
 
     void checkPromotion(Piece::Color color, Piece::Position pawn);
 
+    Piece::Position enPassantTarget;
+
+    bool enPassantAvailable;
+
     public:
 
     Board();
