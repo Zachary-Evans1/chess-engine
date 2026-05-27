@@ -41,7 +41,9 @@ the board would then look like this:
 2  P  P  P  P  .  P  P  P 
 1  R  N  B  Q  K  B  N  R 
 
-And it would then go to blacks turn, if you want to quit the game at any time you simply enter 'q' instead of a space.
+And it would then go to blacks (the AI's) turn, if you want to quit the game at any time you simply enter 'q' instead of a space.
+
+You are playing against an AI opponent, it's not the smartest right now but it can think ahead a single turn.
 
 Piece Legend
 Uppercase = White, Lowercase = Black
@@ -59,7 +61,10 @@ These are all the specific pieces, each has their own constructor and a function
 Board
 This class holds the board which is an array of Piece pointers, it can print the board, parse player input, check for valid moves, move a piece and allow you to play chess.
 
+AI
+This class holds rules for the AI opponent, It assigns values to pieces and moves and then simulates its move and your move to find the best move possible, it is currently not complete
 
 # Roadmap
-Features to add are the following:
-* AI opponent
+* Add promotion choice for Human (currently auto promotes to queen only).
+* Add back choice for human opponent.
+* Add alpha-beta pruning to AI.
