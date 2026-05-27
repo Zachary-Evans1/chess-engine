@@ -21,7 +21,8 @@ class Piece {
         bool operator==(const Position& other) const {
             return row == other.row && col == other.col;
         }
-    };
+    }
+    ;
 
     //Setting up varibles
     Color color;

@@ -5,6 +5,7 @@
 #include "Bishop.h"
 #include "Queen.h"
 #include "King.h"
+#include "AI.h"
 #include <iostream>
 #include <cctype>
 #include <algorithm>
@@ -19,6 +20,214 @@ Board::Board() { //Default constructor
     setupBoard();
     enPassantAvailable = false;
     enPassantTarget = {-1, -1}; 
+}
+
+std::vector<Board::Move> Board::getLegalMovesForColor(Piece::Color color) {
+    std::vector<Move> moves;
+
+    for (int r = 0; r < 8; r++) {
+        for (int c = 0; c < 8; c++) {
+            Piece* piece = board[r][c];
+
+            if (piece == nullptr || piece->getColor() != color) {
+                continue;
+            }
+
+            Piece::Position from{r, c};
+
+            std::vector<Piece::Position> destinations =
+                piece->getLegalMoves(board, enPassantAvailable, enPassantTarget);
+
+            for (const Piece::Position& to : destinations) {
+                if (simulateMove(from, to, color)) {
+                    moves.push_back({from, to});
+                }
+            }
+        }
+    }
+
+    return moves;
+}
+
+Board::MoveRecord Board::makeMove(Move move) {
+    MoveRecord record;
+
+    Piece::Position from = move.from;
+    Piece::Position to = move.to;
+
+    Piece* movingPiece = board[from.row][from.col];
+
+    record.move = move;
+    record.movedPiece = movingPiece;
+    record.movedPieceHadMoved = movingPiece->getHasMoved();
+    record.previousEnPassantAvailable = enPassantAvailable;
+    record.previousEnPassantTarget = enPassantTarget;
+    record.previousGameOver = gameOver;
+
+    bool destinationWasEmpty = board[to.row][to.col] == nullptr;
+
+    record.capturedPiece = board[to.row][to.col];
+    record.capturedPiecePosition = to;
+
+    board[to.row][to.col] = movingPiece;
+    board[from.row][from.col] = nullptr;
+
+    movingPiece->setPosition(to);
+    movingPiece->setHasMoved(true);
+
+    if (movingPiece->getType() == Piece::KING) {
+        if (to.col - from.col == 2) {
+            record.wasCastle = true;
+            record.rookFrom = {to.row, 7};
+            record.rookTo = {to.row, 5};
+
+            Piece* rook = board[to.row][7];
+            record.rookHadMoved = rook->getHasMoved();
+
+            board[to.row][5] = rook;
+            board[to.row][7] = nullptr;
+
+            if (board[to.row][5] != nullptr) {
+                board[to.row][5]->setPosition({to.row, 5});
+                board[to.row][5]->setHasMoved(true);
+            }
+        } else if (from.col - to.col == 2) {
+            record.wasCastle = true;
+            record.rookFrom = {to.row, 0};
+            record.rookTo = {to.row, 3};
+
+            Piece* rook = board[to.row][0];
+            record.rookHadMoved = rook->getHasMoved();
+
+            board[to.row][3] = rook;
+            board[to.row][0] = nullptr;
+
+            if (board[to.row][3] != nullptr) {
+                board[to.row][3]->setPosition({to.row, 3});
+                board[to.row][3]->setHasMoved(true);
+            }
+        }
+    }
+
+    if (movingPiece->getType() == Piece::PAWN &&
+        abs(to.col - from.col) == 1 &&
+        destinationWasEmpty) {
+        record.wasEnPassant = true;
+        record.capturedPiece = board[from.row][to.col];
+        record.capturedPiecePosition = {from.row, to.col};
+
+        board[from.row][to.col] = nullptr;
+    }
+
+    if (movingPiece->getType() == Piece::PAWN &&
+        (to.row == 0 || to.row == 7)) {
+        record.wasPromotion = true;
+        record.originalPawn = movingPiece;
+
+        Piece::Color color = movingPiece->getColor();
+
+        board[to.row][to.col] = new Queen(color, to.row, to.col);
+        record.promotedPiece = board[to.row][to.col];
+    }
+
+    if (movingPiece->getType() == Piece::PAWN &&
+        abs(to.row - from.row) == 2) {
+        enPassantAvailable = true;
+        enPassantTarget = {(from.row + to.row) / 2, to.col};
+    } else {
+        enPassantAvailable = false;
+        enPassantTarget = {-1, -1};
+    }
+
+    return record;
+}
+
+void Board::undoMove(const MoveRecord& record)
+{
+    Piece::Position from = record.move.from;
+    Piece::Position to = record.move.to;
+
+    if (record.wasPromotion) {
+        delete record.promotedPiece;
+
+        board[from.row][from.col] = record.originalPawn;
+        board[to.row][to.col] = nullptr;
+
+        record.originalPawn->setPosition(from);
+        record.originalPawn->setHasMoved(record.movedPieceHadMoved);
+    } else {
+        board[from.row][from.col] = record.movedPiece;
+        board[to.row][to.col] = nullptr;
+
+        record.movedPiece->setPosition(from);
+        record.movedPiece->setHasMoved(record.movedPieceHadMoved);
+    }
+
+    if (record.wasEnPassant) {
+        board[record.capturedPiecePosition.row][record.capturedPiecePosition.col] =
+            record.capturedPiece;
+    } else {
+        board[to.row][to.col] = record.capturedPiece;
+    }
+
+    if (record.capturedPiece != nullptr) {
+        record.capturedPiece->setPosition(record.capturedPiecePosition);
+    }
+
+    if (record.wasCastle) {
+        Piece* rook = board[record.rookTo.row][record.rookTo.col];
+
+        board[record.rookFrom.row][record.rookFrom.col] = rook;
+        board[record.rookTo.row][record.rookTo.col] = nullptr;
+
+        if (rook != nullptr) {
+            rook->setPosition(record.rookFrom);
+            rook->setHasMoved(record.rookHadMoved);
+        }
+    }
+
+    enPassantAvailable = record.previousEnPassantAvailable;
+    enPassantTarget = record.previousEnPassantTarget;
+    gameOver = record.previousGameOver;
+}
+
+int Board::evaluate(Piece::Color color) {
+    int score = 0;
+
+    for(int r = 0; r < 8; r++) {
+        for(int c = 0; c < 8; c++) {
+            Piece* piece = board[r][c];
+            if (piece == nullptr) continue;
+
+            int value = 0;
+
+            switch (piece->getType()) {
+            case Piece::PAWN: value = 100; break;
+            case Piece::KNIGHT: value = 320; break;
+            case Piece::BISHOP: value = 330; break;
+            case Piece::ROOK: value = 500; break;
+            case Piece::QUEEN: value = 900; break;
+            case Piece::KING: value = 20000; break;
+            }
+
+            if (piece->getColor() == color) {
+                score += value;
+            } else {
+                score -= value;
+            }
+        }
+    }
+
+    return score;
+}
+
+Piece* Board::getPieceAt(Piece::Position position) const {
+    if (position.row < 0 || position.row > 7 ||
+        position.col < 0 || position.col > 7) {
+        return nullptr;
+    }
+
+    return board[position.row][position.col];
 }
 
 char Board::getPieceChar(Piece* p)
@@ -215,6 +424,31 @@ void Board::play() {
 
         std::cout << (turn == Piece::WHITE ? "White" : "Black") << "'s turn." << std::endl;
 
+        if (turn == Piece::BLACK) {
+            Board::Move aiMove = AI::chooseMove(*this, Piece::BLACK);
+
+            std::cout << "Black moves from "
+                << char('a' + aiMove.from.col) << aiMove.from.row + 1
+                << " to "
+                << char('a' + aiMove.to.col) << aiMove.to.row + 1
+                << std::endl;
+
+            makeMove(aiMove);
+
+            Piece::Color opponent = Piece::WHITE;
+
+            if (isInCheckmate(opponent)) {
+                printBoard();
+                std::cout << "Black wins by checkmate!" << std::endl;
+                break;
+            } else if (isInCheck(opponent)) {
+                std::cout << "White is in check!" << std::endl;
+            }
+
+            turn = Piece::WHITE;
+            continue;
+        }
+
         std::string f;
 
         std::string t;
@@ -234,31 +468,11 @@ void Board::play() {
         Piece::Position to = parseInput(t);
         Piece::Position from = parseInput(f);
 
-
-
         bool valid = isValidMove(from, to, turn);
 
         if(valid)
         {
-            movePiece(from, to);
-
-            if(board[to.row][to.col] != nullptr && board[to.row][to.col]->getType() == Piece::PAWN)
-            {
-                checkPromotion(turn, to);
-            }
-
-            if(board[to.row][to.col] != nullptr && 
-            board[to.row][to.col]->getType() == Piece::PAWN &&
-            abs(to.row - from.row) == 2)
-            {
-                enPassantAvailable = true;
-                enPassantTarget = {(from.row + to.row) / 2, to.col}; // the skipped square
-            }
-            else
-            {
-                enPassantAvailable = false;
-                enPassantTarget = {-1, -1};
-            }
+            makeMove({from, to});
 
             if(gameOver) break;
 

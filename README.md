@@ -4,7 +4,7 @@
 A chess engine in C++ with a playable two player mode
 
 # How to compile and run
-You can compile using the command: g++ -std=c++17 src/main.cpp src/Board.cpp src/Piece.cpp src/Pawn.cpp src/Rook.cpp src/Bishop.cpp src/Knight.cpp src/Queen.cpp src/King.cpp -I include -o chess
+You can compile using the command: g++ -std=c++17 src/main.cpp src/Board.cpp src/AI.cpp src/Piece.cpp src/Pawn.cpp src/Rook.cpp src/Bishop.cpp src/Knight.cpp src/Queen.cpp src/King.cpp -I include -o chess
 
 And then run it with: ./chess
 
