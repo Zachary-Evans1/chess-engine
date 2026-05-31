@@ -1,15 +1,22 @@
 # chess-engine
 
-# Description
-A chess engine in C++ with a playable two player mode
+A fully-featured chess engine built in C++ with a terminal interface and an AI opponent.
 
-# How to compile and run
-You can compile using the command: g++ -std=c++17 src/main.cpp src/Board.cpp src/AI.cpp src/Piece.cpp src/Pawn.cpp src/Rook.cpp src/Bishop.cpp src/Knight.cpp src/Queen.cpp src/King.cpp -I include -o chess
+## Features
 
-And then run it with: ./chess
+- All Standard chess rules: castling, en passant, pawn promotion
+- AI opponent using minimax search with piece value evaluation
+- Full move undo system enabling the AI to simulate and evaluate future positions
+- Clean OOP architecture: abstract `Piece` base class with type-specific subclasses
+
+## Build & Run
+
+Open the terminal and type: make
+Then type: ./chess
 
 # How to play
-You play by first entering the position of the piece you want to move, and then entering the position you'd like that piece to move to.
+
+Enter moves in algebraic notation. First enter the square of the piece to move, then the destination.
 
 
 Example:
@@ -43,14 +50,19 @@ the board would then look like this:
 
 And it would then go to blacks (the AI's) turn, if you want to quit the game at any time you simply enter 'q' instead of a space.
 
-You are playing against an AI opponent, it's not the smartest right now but it can think ahead a single turn.
-
 Piece Legend
 Uppercase = White, Lowercase = Black
 P/p = Pawn, R/r = Rook, N/n = Knight
 B/b = Bishop, Q/q = Queen, K/k = King
 
 # Project Structure
+
+| File | Role |
+|------|------|
+| `Piece` | Abstract base class — color, type, position, virtual `getLegalMoves` |
+| `Pawn`, `Rook`, etc. | Concrete piece classes with move generation |
+| `Board` | Game state, move validation, input parsing, game loop |
+| `AI` | Minimax search with piece value scoring and move simulation |
 
 Piece
 This class is the base class all the other piece classes are built off of, it sets up color, type and position variable and a constructor and destructor, it also has a virtual function for getting legal moves.

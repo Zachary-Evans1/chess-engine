@@ -42,7 +42,7 @@ Board::Move AI::chooseMove(Board& board, Piece::Color color) {
 
     for (const Board::Move& move : moves) {
         Board::MoveRecord record = board.makeMove(move);
-        int score = minimax(board, 2, color, opponent);
+        int score = minimax(board, 3, color, opponent);
         board.undoMove(record);
 
         if (score > bestScore) {
