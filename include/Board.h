@@ -37,6 +37,8 @@ class Board {
 
     void setupBoard();
 
+    void setupBackRank(int row, Piece::Color color);
+
     bool isInCheckmate(Piece::Color color);
 
     void checkPromotion(Piece::Color color, Piece::Position pawn);

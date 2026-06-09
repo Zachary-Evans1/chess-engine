@@ -562,62 +562,23 @@ bool Board::isInCheckmate(Piece::Color color)
     return true;
 }
 
-void Board::setupBoard() {
-    for(int r = 0; r < 2; r++) {
-        for(int c = 0; c < 8; c++) {
-            if(r == 0 && c == 0 || r == 0 && c == 7)
-            {
-                board[r][c] = new Rook(Piece::WHITE, r, c);
-            }
-            else if(r == 0 && c == 1 || r == 0 && c == 6)
-            {
-                board[r][c] = new Knight(Piece::WHITE, r, c);
-            }
-            else if(r == 0 && c == 2 || r == 0 && c == 5)
-            {
-                board[r][c] = new Bishop(Piece::WHITE, r, c);
-            }
-            else if(r == 0 && c == 3)
-            {
-                board[r][c] = new Queen(Piece::WHITE, r, c);
-            }
-            else if(r == 0 && c == 4)
-            {
-                board[r][c] = new King(Piece::WHITE, r, c);
-            }
-            else if(r == 1)
-            {
-                board[r][c] = new Pawn(Piece::WHITE, r, c);
-            }
-        }
-    }
+void Board::setupBackRank(int row, Piece::Color color) {
+    board[row][0] = new Rook(color, row, 0);
+    board[row][1] = new Knight(color, row, 1);
+    board[row][2] = new Bishop(color, row, 2);
+    board[row][3] = new Queen(color, row, 3);
+    board[row][4] = new King(color, row, 4);
+    board[row][5] = new Bishop(color, row, 5);
+    board[row][6] = new Knight(color, row, 6);
+    board[row][7] = new Rook(color, row, 7);
+}
 
-    for(int r = 6; r < 8; r++) {
-        for(int c = 0; c < 8; c++) {
-            if(r == 7 && c == 0 || r == 7 && c == 7)
-            {
-                board[r][c] = new Rook(Piece::BLACK, r, c);
-            }
-            else if(r == 7 && c == 1 || r == 7 && c == 6)
-            {
-                board[r][c] = new Knight(Piece::BLACK, r, c);
-            }
-            else if(r == 7 && c == 2 || r == 7 && c == 5)
-            {
-                board[r][c] = new Bishop(Piece::BLACK, r, c);
-            }
-            else if(r == 7 && c == 3)
-            {
-                board[r][c] = new Queen(Piece::BLACK, r, c);
-            }
-            else if(r == 7 && c == 4)
-            {
-                board[r][c] = new King(Piece::BLACK, r, c);
-            }
-            else if(r == 6)
-            {
-                board[r][c] = new Pawn(Piece::BLACK, r, c);
-            }
-        }
+void Board::setupBoard() {
+    setupBackRank(0, Piece::WHITE);
+    setupBackRank(7, Piece::BLACK);
+
+    for(int c = 0; c < 8; c++) {
+        board[1][c] = new Pawn(Piece::WHITE, 1, c);
+        board[6][c] = new Pawn(Piece::BLACK, 6, c);
     }
 }

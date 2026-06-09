@@ -11,7 +11,7 @@ A fully-featured chess engine built in C++ with a terminal interface and an AI o
 
 ## Build & Run
 
-Open the terminal and type: make
+Open the terminal and type: mingw32-make
 Then type: ./chess
 
 # How to play
